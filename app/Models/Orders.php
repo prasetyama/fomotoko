@@ -15,7 +15,6 @@ class Orders extends Model
         'user_id',
         'product_id',
         'quantity',
-        'total_prices',
-        'body'
+        'total_prices'
     ];
 }
