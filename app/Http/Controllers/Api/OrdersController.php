@@ -45,9 +45,9 @@ class OrdersController extends Controller
             }
         }
 
-        $product = Products::Where('id', '=', $product_id)->first();
+        $product = $this->checkStock($product_id, $quantity);
 
-        if ($product['stock'] >= $quantity){
+        if ($product['available']){
             $orders = Orders::create([
                 'product_id' => $product_id,
                 'quantity' => $quantity,
@@ -65,7 +65,7 @@ class OrdersController extends Controller
                     'message' => 'order created'
                 ], 200);
             } else {
-                echo "order product id " . $product_id . "created "; echo "\n";
+                echo "order product id " . $product_id . " created "; echo "\n";
             }
         } else {
 
@@ -78,5 +78,18 @@ class OrdersController extends Controller
                 echo "stock product id " . $product_id . " unavailable, stock hanya sisa " . $product['stock']; echo "\n";
             }
         }
+    }
+
+    public function checkStock ($id, $quantity){
+
+        $product = Products::Where('id', '=', $id)->first();
+
+        if ($product['stock'] >= $quantity){
+            $product['available'] = true;
+        } else {
+            $product['available'] = false;
+        }
+
+        return $product;
     }
 }
