@@ -92,4 +92,24 @@ class OrdersController extends Controller
 
         return $product;
     }
+
+    //Rate Limit for Check Stock API
+    public function checkStockApi(Request $request){
+        $product_id = $request->product_id;
+        $quantity = $request->quantity;
+
+        $product = Products::Where('id', '=', $product_id)->first();
+
+        if ($product['stock'] >= $quantity){
+            return response()->json([
+                'success' => true,
+                'message' => 'Stock Available'
+            ], 200);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Stock Unavailable'
+            ], 401);
+        }
+    }
 }

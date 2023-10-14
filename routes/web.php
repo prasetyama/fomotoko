@@ -25,3 +25,6 @@ Route::middleware('auth:auth')->get('/user', function (Request $request) {
 });
 
 Route::middleware('auth:auth')->post('/orders', 'App\Http\Controllers\Api\OrdersController@store')->name('orders.store');
+
+//Rate Limit for Check Stock
+Route::middleware(['auth:auth', 'throttle:5,1'])->post('/checkStock', 'App\Http\Controllers\Api\OrdersController@checkStockApi')->name('orders.checkStockApi');
