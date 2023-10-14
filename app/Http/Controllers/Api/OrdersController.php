@@ -17,6 +17,8 @@ class OrdersController extends Controller
         $user_id = rand(1,3);
         $quantity = rand(1,5);
 
+        $returnJson = false;
+
         if ($request->product_id){
             $product_id = $request->product_id;
         }
@@ -31,6 +33,8 @@ class OrdersController extends Controller
         
         //set validation
         if ($request->product_id || $request->quantity){
+
+            $returnJson = True;
             $validator = Validator::make($request->all(), [
                 'product_id'      => 'required',
                 'quantity'  => 'required|numeric|min:1'
@@ -55,15 +59,24 @@ class OrdersController extends Controller
                 Products::where('id', $product_id)->update(['stock' => $product['stock'] - $quantity]);
             }
 
-            return response()->json([
-                'success' => true,
-                'message' => 'order created'
-            ], 200);
+            if ($returnJson){
+                return response()->json([
+                    'success' => true,
+                    'message' => 'order created'
+                ], 200);
+            } else {
+                echo "order product id " . $product_id . "created "; echo "\n";
+            }
         } else {
-            return response()->json([
-                'success' => false,
-                'message' => 'stock unavailable, stock hanya sisa ' . $product['stock']
-            ], 401);    
+
+            if ($returnJson){
+                return response()->json([
+                    'success' => false,
+                    'message' => 'stock unavailable, stock hanya sisa ' . $product['stock']
+                ], 401);  
+            } else {
+                echo "stock product id " . $product_id . " unavailable, stock hanya sisa " . $product['stock']; echo "\n";
+            }
         }
     }
 }
