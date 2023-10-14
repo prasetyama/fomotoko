@@ -11,27 +11,48 @@ use Illuminate\Support\Facades\Validator;
 class OrdersController extends Controller
 {
     public function store(Request $request)
-    {
-        //set validation
-        $validator = Validator::make($request->all(), [
-            'product_id'      => 'required',
-            'quantity'  => 'required|numeric|min:1'
-        ]);
+    {      
 
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
+        $product_id = rand(1,3);
+        $user_id = rand(1,3);
+        $quantity = rand(1,5);
+
+        if ($request->product_id){
+            $product_id = $request->product_id;
         }
 
-        $product = Products::Where('id', '=', $request->product_id)->first();
+        if ($request->quantity){
+            $quantity = $request->quantity;
+        }
 
-        if ($product['stock'] >= $request->quantity){
-            $orders = Orders::create(array_merge($request->only('product_id', 'quantity'),[
-                'user_id' => $request->user()->id,
-                'total_prices' => $product['price'] * $request->quantity
-            ]));
+        if ($request->user()){
+            $user_id = $request->user()->id;
+        }
+        
+        //set validation
+        if ($request->product_id || $request->quantity){
+            $validator = Validator::make($request->all(), [
+                'product_id'      => 'required',
+                'quantity'  => 'required|numeric|min:1'
+            ]);
+    
+            if ($validator->fails()) {
+                return response()->json($validator->errors(), 422);
+            }
+        }
+
+        $product = Products::Where('id', '=', $product_id)->first();
+
+        if ($product['stock'] >= $quantity){
+            $orders = Orders::create([
+                'product_id' => $product_id,
+                'quantity' => $quantity,
+                'user_id' => $user_id,
+                'total_prices' => $product['price'] * $quantity
+            ]);
 
             if ($orders) {
-                Products::where('id', $request->product_id)->update(['stock' => $product['stock'] - $request->quantity]);
+                Products::where('id', $product_id)->update(['stock' => $product['stock'] - $quantity]);
             }
 
             return response()->json([
